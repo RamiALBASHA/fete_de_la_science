@@ -12,6 +12,9 @@ from openalea.plantgl.all import Scene
 from openalea.plantgl.all import surface as surf
 from pandas import read_csv, to_datetime
 
+
+pyplot.ioff()
+
 CONV_CO2 = constants.co2_molar_mass * 1.e-6 * 3600.  # umol/s to g/h
 
 
@@ -126,7 +129,7 @@ def run_hydroshoot(path_dir_preprocessed_inputs: Path, path_output: Path, is_low
     return g, summary_output
 
 
-def display_whole_plant(path_output_low: Path, path_output_high: Path, path_weather: Path):
+def display_whole_plant(path_output_low: Path, path_output_high: Path, path_weather: Path) -> pyplot.Figure:
     df_output_low = read_csv(path_output_low, sep=';', decimal='.', index_col='Unnamed: 0')
     df_output_high = read_csv(path_output_high, sep=';', decimal='.', index_col='Unnamed: 0')
     for df in (df_output_low, df_output_high):
@@ -162,7 +165,7 @@ def display_whole_plant(path_output_low: Path, path_output_high: Path, path_weat
 
     axs[-1, -1].xaxis.set_major_formatter(DateFormatter('%H'))
     fig.tight_layout()
-    pass
+    return fig
 
 
 def display_mtg_properties(path_output_low: Path, path_output_high: Path):
@@ -243,7 +246,7 @@ if __name__ == '__main__':
     #         is_show=True,
     #         path_output=path_data / f'output_{"low" if is_low_area else "high"}/time_series.csv')
 
-    display_whole_plant(
+    fig1 = display_whole_plant(
         path_output_low=path_data / 'output_low/time_series.csv',
         path_output_high=path_data / 'output_high/time_series.csv',
         path_weather=path_data / 'weather.csv')
