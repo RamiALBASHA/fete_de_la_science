@@ -9,7 +9,7 @@
     "tzone": "Europe/Paris",
     "output_index": "",
     "unit_scene_length": "cm",
-    "hydraulic_structure": true,
+    "hydraulic_structure": false,
     "negligible_shoot_resistance": false,
     "energy_budget": true,
     "soil_water_deficit": true
@@ -144,10 +144,10 @@
         "deltaHa": 37.83
       },
       "photo_inhibition": {
-        "dhd_inhib_beg":195,
-        "dHd_inhib_max":190,
-        "psi_inhib_beg":-1.5,
-        "psi_inhib_max":-3,
+        "dhd_inhib_beg": 195,
+        "dHd_inhib_max": 190,
+        "psi_inhib_beg": -1.5,
+        "psi_inhib_max": -3,
         "temp_inhib_beg": 35,
         "temp_inhib_max": 40
       }
@@ -181,5 +181,3 @@
     "rhyzo_coeff": 0.5
   }
 }
-
-
