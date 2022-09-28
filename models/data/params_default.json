@@ -1,11 +1,11 @@
 {
   "simulation": {
-    "sdate": "2012-08-01 09:00:00",
-    "edate": "2012-08-01 15:00:00",
+    "sdate": "2012-08-01 00:00:00",
+    "edate": "2012-08-01 23:00:00",
     "latitude": 43.61,
     "longitude": 3.87,
     "elevation": 44.0,
-    "meteo": "weather.csv",
+	"meteo": "weather.csv",
     "tzone": "Europe/Paris",
     "output_index": "",
     "unit_scene_length": "cm",
@@ -99,11 +99,11 @@
     },
     "par_gs": {
       "model": "misson",
-      "g0": 0.038,
+      "g0": 0.02,
       "m0": 5.278,
-      "psi0": -3.7,
+      "psi0": -1.0,
       "D0": 30.0,
-      "n": 4
+      "n": 4.0
     },
     "par_photo": {
       "Vcm25": 89.0,
@@ -120,7 +120,7 @@
         "deltaHa": 79.43
       },
       "RespT_Ko": {
-        "c": 20.3,
+        "c": 20.30,
         "deltaHa": 36.38
       },
       "RespT_Vcm": {
@@ -144,10 +144,10 @@
         "deltaHa": 37.83
       },
       "photo_inhibition": {
-        "dhd_inhib_beg": 195,
-        "dHd_inhib_max": 190,
-        "psi_inhib_beg": -1.5,
-        "psi_inhib_max": -3,
+        "dhd_inhib_beg":195,
+        "dHd_inhib_max":190,
+        "psi_inhib_beg":-1.5,
+        "psi_inhib_max":-3,
         "temp_inhib_beg": 35,
         "temp_inhib_max": 40
       }
@@ -181,3 +181,5 @@
     "rhyzo_coeff": 0.5
   }
 }
+
+

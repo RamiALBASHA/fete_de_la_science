@@ -1,0 +1,4 @@
+hydroshoot>=4.0.0
+shiny
+matplotlib
+openalea.mtg
