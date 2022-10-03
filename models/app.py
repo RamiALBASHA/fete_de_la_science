@@ -28,26 +28,25 @@ app_ui = ui.page_fluid(
         ui.column(
             2,
             ui.img(src="logos_mesr_occitanie.png", style="width: 100%; max-width: 250px;"),
+            ui.img(src="logo_fds_noir_rouge.png",
+                   style="width: 50%; max-width: 250px; vertical-align:center, horizontal-align:center"),
+
         ),
-        ui.column(
-            1,
-            ui.img(src="logo_fds_noir_rouge.png", style="width: 100%; max-width: 250px; vertical-align:top"),
-        ),
+        ui.column(8, ui.h1("Quelle conduite de la vigne face au changement climatique ?",
+                           style="font-size: 30px; color: Navy; text-align: center; font-weight: bold;"
+                                 "font-family:Arial Narrow; background-color:  #f8f9f9 ")),
         ui.column(
             2,
             ui.img(src="logo_lepse.jpg", style="width: 100%; max-width: 250px;"),
-        ),
-        ui.column(
-            2,
-            ui.img(src="logo_instant_science.png", style="width: 50%; max-width: 250px;"),
+            ui.img(src="logo_instant_science.png", style="width: 50%; max-width: 250px;")
         ),
     ),
     ui.row(
         ui.column(
-            3,
+            4,
             panel_box(
                 ui.row(
-                    ui.column(8,
+                    ui.column(6,
                               ui.input_select(
                                   "canopy_1",
                                   "Conduite 1",
@@ -59,12 +58,7 @@ app_ui = ui.page_fluid(
                                   },
                               ),
                               ),
-                    ui.column(4,
-                              ui.output_ui("display_canopy1"),
-                              )
-                ),
-                ui.row(
-                    ui.column(8,
+                    ui.column(6,
                               ui.input_select(
                                   "canopy_2",
                                   "Conduite 2",
@@ -76,13 +70,17 @@ app_ui = ui.page_fluid(
                                   },
                               ),
                               ),
-                    ui.column(4,
-                              ui.output_ui("display_canopy2"),
+                ),
+                ui.row(
+                    ui.column(6,
+                              ui.output_ui(id="display_canopy1"),
                               ),
+                    ui.column(6,
+                              ui.output_ui(id="display_canopy2"),
+                              )
                 ),
                 ui.input_action_button("compare", "Comparer", class_="btn-primary w-100"),
             ),
-            ui.output_plot("display_water_use_efficiency", height='300px'),
             panel_box(
                 ui.input_numeric(id="hour", label="Heure simulée", value=12, min=9, max=15, step=1),
                 ui.input_select(
@@ -99,12 +97,21 @@ app_ui = ui.page_fluid(
                     }
                 ),
                 ui.input_action_button(id="plot_mtg", label="Afficher", class_="btn-primary w-100"),
+            ),
+            panel_box(
+                ui.h2("Simulation à l'échelle de la feuille",
+                      style="font-size: 20px; color: Navy; text-align: center"),
+                ui.output_plot("display_mtg_property", height='200px')
             )
         ),
         ui.column(
-            6,
-            ui.output_plot("display_whole_plant", height='600px'),
-            ui.output_plot("display_mtg_property", height='200px')
+            5,
+            panel_box(
+                ui.h2("Simulation à l'échelle de la canopée",
+                      style="font-size: 20px; color: Navy; text-align: center"),
+                ui.output_plot("display_whole_plant", height='500px'),
+                ui.output_plot("display_water_use_efficiency", height='300px'),
+            ),
         ),
         ui.column(
             3,
@@ -145,12 +152,12 @@ def server(ui_input, ui_output, session):
     @ui_output
     @render.ui
     def display_canopy1():
-        return ui.tags.img(src=f'icone_{ui_input.canopy_1()}.png', height='100pixel')
+        return ui.tags.img(src=f'icone_{ui_input.canopy_1()}.png', height='150px')
 
     @ui_output
     @render.ui
     def display_canopy2():
-        return ui.tags.img(src=f'icone_{ui_input.canopy_2()}.png', height='100px')
+        return ui.tags.img(src=f'icone_{ui_input.canopy_2()}.png', height='150px')
 
     @ui_output
     @render.ui
@@ -158,7 +165,7 @@ def server(ui_input, ui_output, session):
         return ui.tags.img(src=f'icone_{ui_input.canopy_user()}.png', height='100px')
 
     @ui_output
-    @render.plot
+    @render.plot(alt="Simulation à l'échelle de la plante")
     @reactive.event(ui_input.compare, ui_input.run, ignore_init=True, ignore_none=False)
     def display_whole_plant():
         return sim_funcs.plot_whole_plant_gas_exchange(

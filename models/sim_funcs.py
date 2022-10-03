@@ -334,13 +334,20 @@ def display_mtg_property(path_ref: Path, training_system_1: str, training_system
         with open(path_user, mode='rb') as f:
             g_user, _ = load_pickle(f)
 
+    if mtg_property == 'psi_head':
+        prop2 = None
+        cmap = None
+    else:
+        prop2 = 'Eabs'
+        cmap = 'inferno'
+
     fig, axs = pyplot.subplots(ncols=n_cols, sharey='all', sharex='all')
-    axs[0] = display.property_map(g_ref_1, prop=mtg_property, ax=axs[0], prop2='Eabs', colormap='autumn')
+    axs[0] = display.property_map(g_ref_1, prop=mtg_property, ax=axs[0], prop2=prop2, colormap=cmap)
     axs[0].set_title(training_system_1)
-    axs[1] = display.property_map(g_ref_2, prop=mtg_property, ax=axs[1], prop2='Eabs', colormap='autumn')
+    axs[1] = display.property_map(g_ref_2, prop=mtg_property, ax=axs[1], prop2=prop2, colormap=cmap)
     axs[1].set_title(training_system_2)
     if training_system_user != 'none':
-        axs[2] = display.property_map(g_user, prop=mtg_property, ax=axs[2], prop2='Eabs', colormap='autumn')
+        axs[2] = display.property_map(g_user, prop=mtg_property, ax=axs[2], prop2=prop2, colormap=cmap)
         axs[2].set_title(training_system_user)
     return fig
 
