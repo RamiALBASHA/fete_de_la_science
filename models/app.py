@@ -4,6 +4,7 @@ from pathlib import Path
 
 from matplotlib import pyplot
 from shiny import App, reactive, render, ui
+from shinywidgets import output_widget, render_widget
 
 import sim_funcs
 
@@ -73,10 +74,12 @@ app_ui = ui.page_fluid(
                 ),
                 ui.row(
                     ui.column(6,
-                              ui.output_ui(id="display_canopy1"),
+                              # ui.output_ui(id="display_canopy1"),
+                              output_widget(id="display_3d_canopy1")
                               ),
                     ui.column(6,
-                              ui.output_ui(id="display_canopy2"),
+                              # ui.output_ui(id="display_canopy2"),
+                              output_widget(id="display_3d_canopy2")
                               )
                 ),
                 ui.input_action_button("compare", "Comparer", class_="btn-primary w-100"),
@@ -88,7 +91,7 @@ app_ui = ui.page_fluid(
                     label="Propriété à afficher",
                     choices={
                         "gs": "Conductance stomatique",
-                        "An": "Photosynthèse nette",
+                        "An": "Photosynthèse",
                         "psi_head": "Potentiel Xylémien",
                         "Tlc": "Température",
                         "Na": "Teneur en azote",
@@ -96,7 +99,7 @@ app_ui = ui.page_fluid(
                         "gb": "Conductance Couche lim.",
                     }
                 ),
-                ui.input_action_button(id="plot_mtg", label="Afficher", class_="btn-primary w-100"),
+                ui.input_action_button(id="plot_mtg", label="Comparer", class_="btn-primary w-100"),
             ),
             panel_box(
                 ui.h2("Simulation à l'échelle de la feuille",
@@ -135,13 +138,12 @@ app_ui = ui.page_fluid(
                               ui.output_ui("display_canopy_user"),
                               )
                 ),
-                ui.input_slider("gs_min", "Conductance stomatique résiduelle\n(mmol/m2/s)", 0, 40, value=20),
-                ui.input_slider("psi_gs50", "Potentiel xylémien à 50% de la fermeture stomatique (MPa)", -4, 0,
-                                value=-1,
+                ui.input_slider("gs_min", "Conductance stomatique minimale\n(mmol/m2/s)", 0, 40, value=20),
+                ui.input_slider("psi_gs50", "Pression à laquelle les stomates ferment à 50% (MPa)", -4, 0, value=-1,
                                 step=0.1),
-                ui.input_slider("n", "Réponse au stress hydrique", 0, 5, value=4, step=0.1),
+                ui.input_slider("n", "Sensibilité au déficit hydrique", 0, 5, value=4, step=0.1),
                 ui.input_action_button("run", "Lancer", class_="btn-primary w-100"),
-                ui.output_plot("display_stomatal_response")
+                ui.output_plot("display_stomatal_response"),
             ),
         )
     ),
@@ -210,7 +212,6 @@ def server(ui_input, ui_output, session):
             hour=ui_input.hour(),
             mtg_property=ui_input.mtg_prop()
         )
-
 
     @reactive.Effect
     @reactive.event(ui_input.run, ignore_init=True, ignore_none=False)
