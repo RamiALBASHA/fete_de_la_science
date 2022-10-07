@@ -235,5 +235,15 @@ def server(ui_input, ui_output, session):
             is_show=False,
             path_output=path_output / 'time_series.csv')
 
+    @ui_output
+    @render_widget
+    def display_3d_canopy1():
+        return sim_funcs.show_3d(canopy_name=ui_input.canopy_1())
+
+    @ui_output
+    @render_widget
+    def display_3d_canopy2():
+        return sim_funcs.show_3d(canopy_name=ui_input.canopy_2())
+
 
 app = App(ui=app_ui, server=server, debug=True, static_assets=path_static)
