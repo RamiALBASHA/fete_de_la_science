@@ -44,7 +44,7 @@ app_ui = ui.page_fluid(
     ),
     ui.row(
         ui.column(
-            4,
+            5,
             panel_box(
                 ui.row(
                     ui.column(6,
@@ -108,7 +108,7 @@ app_ui = ui.page_fluid(
             )
         ),
         ui.column(
-            5,
+            4,
             panel_box(
                 ui.h2("Simulation à l'échelle de la canopée",
                       style="font-size: 20px; color: Navy; text-align: center"),
@@ -117,7 +117,7 @@ app_ui = ui.page_fluid(
             ),
         ),
         ui.column(
-            3,
+            2,
             panel_box(
                 ui.row(
                     ui.column(8,
