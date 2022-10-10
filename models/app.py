@@ -238,12 +238,12 @@ def server(ui_input, ui_output, session):
     @ui_output
     @render_widget
     def display_3d_canopy1():
-        return sim_funcs.show_3d(canopy_name=ui_input.canopy_1())
+        return sim_funcs.show_3d(canopy_name=ui_input.canopy_1(), is_complete_canopy=True)
 
     @ui_output
     @render_widget
     def display_3d_canopy2():
-        return sim_funcs.show_3d(canopy_name=ui_input.canopy_2())
+        return sim_funcs.show_3d(canopy_name=ui_input.canopy_2(), is_complete_canopy=True)
 
 
 app = App(ui=app_ui, server=server, debug=True, static_assets=path_static)

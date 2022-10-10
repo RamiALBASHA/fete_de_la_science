@@ -413,8 +413,9 @@ def plot_stomatal_reduction_coef(psi50: float, gs0: float, n: float) -> pyplot.F
     return fig
 
 
-def show_3d(canopy_name: str) -> Plot:
-    g = build_grapevine_mtg(path_digit_file=PATH_STATIC / f'digit_{canopy_name}.csv')
+def show_3d(canopy_name: str, is_complete_canopy: bool = True) -> Plot:
+    file_name = f'digit_{canopy_name}{"_complete" if is_complete_canopy else ""}.csv'
+    g = build_grapevine_mtg(path_digit_file=PATH_STATIC / file_name)
     virtual_scene = display.visu(g=g, def_elmnt_color_dict=True, scene=Scene(), view_result=False)
     return PlantGL(virtual_scene)
 
