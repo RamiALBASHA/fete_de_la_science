@@ -47,7 +47,7 @@ def build_grapevine_mtg(path_digit_file: Path, is_cordon_preferential_orientatio
     return g
 
 
-def generate_grapevine_mtgs(path_dir_project: Path):
+def generate_cordon_mtgs_and_preprocessed_inputs(path_dir_project: Path):
     path_output = path_dir_project / 'preprocessed_inputs'
     for is_high_leaf_area in (False, True):
         g = build_grapevine_mtg(
@@ -62,7 +62,7 @@ def generate_grapevine_mtgs(path_dir_project: Path):
     pass
 
 
-def generate_grapevine_mtgs2(path_dir_project: Path):
+def generate_grapevine_mtgs_and_preprocessed_inputs(path_dir_project: Path):
     path_output = path_dir_project / 'preprocessed_inputs'
     for training_sys in ('cordon', 'lyre', 'gdc', 'vsp'):
         g = build_grapevine_mtg(path_digit_file=path_dir_project / f'digit_{training_sys}.csv')
@@ -153,7 +153,7 @@ def run_hydroshoot(path_dir_preprocessed_inputs: Path, path_project: Path, path_
     return g, summary_output
 
 
-def display_whole_plant(path_output_low: Path, path_output_high: Path, path_weather: Path) -> pyplot.Figure:
+def _plot_whole_plant_gas_exchange(path_output_low: Path, path_output_high: Path, path_weather: Path) -> pyplot.Figure:
     df_output_low = read_csv(path_output_low, sep=';', decimal='.', index_col='Unnamed: 0')
     df_output_high = read_csv(path_output_high, sep=';', decimal='.', index_col='Unnamed: 0')
     for df in (df_output_low, df_output_high):
@@ -277,7 +277,21 @@ def plot_water_use_efficiency(path_ref: Path, path_user: Path, training_system_1
     return fig
 
 
-def display_mtg_properties(path_output_low: Path, path_output_high: Path):
+def _plot_water_use_efficiency(path_output_low: Path, path_output_high: Path) -> pyplot.Figure:
+    df_output_low = read_csv(path_output_low, sep=';', decimal='.', index_col='Unnamed: 0')
+    df_output_high = read_csv(path_output_high, sep=';', decimal='.', index_col='Unnamed: 0')
+
+    fig, ax = pyplot.subplots()
+    for s, df, c in (('clairsemé', df_output_low, 'orange'), ('dense', df_output_high, 'red')):
+        df.index = to_datetime(df.index)
+        ax.bar(s, df['An'].sum() * CONV_CO2 / df['E'].sum(), facecolor=c)
+    ax.set(ylabel='\n'.join(["Efficience de l'utilisation de l'eau", "$\mathregular{g_{CO_2}\/g^{-1}_{H_2O}}$"]))
+    fig.tight_layout()
+
+    return fig
+
+
+def _plot_mtg_property(path_output_low: Path, path_output_high: Path):
     fig, axs = pyplot.subplots(nrows=4, ncols=1, sharex='all')
     irradiance = {}
     photosynthesis = {}
@@ -329,8 +343,8 @@ def display_mtg_properties(path_output_low: Path, path_output_high: Path):
     pass
 
 
-def display_mtg_property(path_ref: Path, training_system_1: str, training_system_2: str, path_user: Path,
-                         training_system_user: str, hour: int, mtg_property: str) -> pyplot.Figure:
+def plot_mtg_property(path_ref: Path, training_system_1: str, training_system_2: str, path_user: Path,
+                      training_system_user: str, hour: int, mtg_property: str) -> pyplot.Figure:
     path_ref_1 = path_ref / training_system_1 / f'mtg20120801{hour:02d}0000.pckl'
     path_ref_2 = path_ref / training_system_2 / f'mtg20120801{hour:02d}0000.pckl'
     with open(path_ref_1, mode='rb') as f:
@@ -360,20 +374,9 @@ def display_mtg_property(path_ref: Path, training_system_1: str, training_system
     if training_system_user != 'none':
         axs[2] = display.property_map(g_user, prop=mtg_property, ax=axs[2], prop2=prop2, colormap=cmap)
         axs[2].set_title(MAP_NAMES[training_system_user])
-    return fig
-
-
-def display_water_use_efficiency(path_output_low: Path, path_output_high: Path) -> pyplot.Figure:
-    df_output_low = read_csv(path_output_low, sep=';', decimal='.', index_col='Unnamed: 0')
-    df_output_high = read_csv(path_output_high, sep=';', decimal='.', index_col='Unnamed: 0')
-
-    fig, ax = pyplot.subplots()
-    for s, df, c in (('clairsemé', df_output_low, 'orange'), ('dense', df_output_high, 'red')):
-        df.index = to_datetime(df.index)
-        ax.bar(s, df['An'].sum() * CONV_CO2 / df['E'].sum(), facecolor=c)
-    ax.set(ylabel='\n'.join(["Efficience de l'utilisation de l'eau", "$\mathregular{g_{CO_2}\/g^{-1}_{H_2O}}$"]))
+    for ax in axs[1:]:
+        ax.set_ylabel('')
     fig.tight_layout()
-
     return fig
 
 
@@ -413,7 +416,7 @@ def plot_stomatal_reduction_coef(psi50: float, gs0: float, n: float) -> pyplot.F
     return fig
 
 
-def show_3d(canopy_name: str, is_complete_canopy: bool = True) -> Plot:
+def show_3d_canopy(canopy_name: str, is_complete_canopy: bool = True) -> Plot:
     file_name = f'digit_{canopy_name}{"_complete" if is_complete_canopy else ""}.csv'
     g = build_grapevine_mtg(path_digit_file=PATH_STATIC / file_name)
     virtual_scene = display.visu(g=g, def_elmnt_color_dict=True, scene=Scene(), view_result=False)
@@ -421,9 +424,12 @@ def show_3d(canopy_name: str, is_complete_canopy: bool = True) -> Plot:
 
 
 if __name__ == '__main__':
+    is_generate_cordon_mtg_with_high_and_low_leaf_area = False
     path_data = Path(__file__).parent / 'data'
-    # generate_grapevine_mtgs(path_dir_project=path_data)
-    generate_grapevine_mtgs2(path_dir_project=path_data)
+
+    if is_generate_cordon_mtg_with_high_and_low_leaf_area:
+        generate_cordon_mtgs_and_preprocessed_inputs(path_dir_project=path_data)
+    generate_grapevine_mtgs_and_preprocessed_inputs(path_dir_project=path_data)
     # %gui qt5
 
     for training_system in ('cordon', 'lyre', 'gdc', 'vsp'):
@@ -433,16 +439,16 @@ if __name__ == '__main__':
             training_sys=training_system,
             is_show=False,
             path_output=path_data / f'output_ref/{training_system}/time_series.csv')
-    #
-    # fig1 = display_whole_plant(
-    #     path_output_low=path_data / 'output_low/time_series.csv',
-    #     path_output_high=path_data / 'output_high/time_series.csv',
-    #     path_weather=path_data / 'weather.csv')
-    #
-    # display_mtg_properties(
-    #     path_output_low=path_data / 'output_low',
-    #     path_output_high=path_data / 'output_high')
-    #
-    # display_water_use_efficiency(
-    #     path_output_low=path_data / 'output_low/time_series.csv',
-    #     path_output_high=path_data / 'output_high/time_series.csv')
+
+    _plot_whole_plant_gas_exchange(
+        path_output_low=path_data / 'output_low/time_series.csv',
+        path_output_high=path_data / 'output_high/time_series.csv',
+        path_weather=path_data / 'weather.csv')
+
+    _plot_mtg_property(
+        path_output_low=path_data / 'output_low',
+        path_output_high=path_data / 'output_high')
+
+    _plot_water_use_efficiency(
+        path_output_low=path_data / 'output_low/time_series.csv',
+        path_output_high=path_data / 'output_high/time_series.csv')
