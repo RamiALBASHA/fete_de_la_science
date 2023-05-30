@@ -1,4 +1,5 @@
-hydroshoot>=4.0.0
+hydroshoot=4.0.0
 shiny
+shinywidgets
 matplotlib
 openalea.mtg
