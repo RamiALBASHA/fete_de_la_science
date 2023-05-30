@@ -1,9 +1,7 @@
-# fete_de_la_science
-Data and models used in the demos for the Fête de la Science
-
-An Interactive User Interface to HydroShoot model
-=================================================
-A shiny app to run HydroShoot model.
+fete_de_la_science
+==================
+Data and models used in the demos for the "Fête de la Science" in Montpellier, 7-17 oct. 2022
+This project includes an Interactive User Interface to HydroShoot model (Albasha et al., 2019, https://doi.org/10.1093/insilicoplants/diz007)
 
 # Installation
 
