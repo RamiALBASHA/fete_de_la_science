@@ -35,13 +35,13 @@ You must have the following information plotted into the terminal:
     INFO:     Application startup complete.
 
 Click on the URL address (e.g. `http://127.0.0.1:8000` in this example), you should now have the following
-interface running :
+interface running:
 
 <img src="models/figs/snapshot_ui_start.png" alt="Illustration of inputs and outputs of HydroShoot">
 
 ## You're done!
 
-For example:
+It's up to you to play with the app. For example you can:
 
 - Change the type of training systems ('Conduite 1' and 'Conduite 2') and compare performance ('Comparer').
 - Run HydroShoot with different stomatal conductance parameters ('Lancer', do not forget to select a training suystem '
