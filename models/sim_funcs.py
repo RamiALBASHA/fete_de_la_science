@@ -66,7 +66,7 @@ def generate_grapevine_mtgs_and_preprocessed_inputs(path_dir_project: Path):
     path_output = path_dir_project / 'preprocessed_inputs'
     for training_sys in ('cordon', 'lyre', 'gdc', 'vsp'):
         g = build_grapevine_mtg(path_digit_file=path_dir_project / f'digit_{training_sys}.csv')
-        virtual_scene = display.visu(g=g, def_elmnt_color_dict=True, scene=Scene(), view_result=True)
+        virtual_scene = display.visu(g=g, def_elmnt_color_dict=True, scene=Scene(), view_result=False)
         preprocess_inputs(
             grapevine_mtg=g, path_project_dir=path_dir_project, psi_soil=-1, gdd_since_budbreak=1000.,
             scene=virtual_scene, name_index=training_sys)
@@ -122,7 +122,8 @@ def preprocess_inputs(grapevine_mtg: mtg.MTG, path_project_dir: Path, psi_soil: 
 
 
 def run_hydroshoot(path_dir_preprocessed_inputs: Path, path_project: Path, path_output: Path, training_sys: str,
-                   is_show: bool = True, snap_shot_path: Path = False):
+                   is_show: bool = True, snap_shot_path: Path = None):
+    path_output.parent.mkdir(exist_ok=True, parents=True)
     path_mtg_file = path_dir_preprocessed_inputs / f'mtg{training_sys}.pckl'
     with open(path_mtg_file, mode='rb') as f:
         g, _ = load_pickle(f)
@@ -424,12 +425,10 @@ def show_3d_canopy(canopy_name: str, is_complete_canopy: bool = True) -> Plot:
 
 
 if __name__ == '__main__':
-    is_generate_cordon_mtg_with_high_and_low_leaf_area = False
     path_data = Path(__file__).parent / 'data'
 
-    if is_generate_cordon_mtg_with_high_and_low_leaf_area:
-        generate_cordon_mtgs_and_preprocessed_inputs(path_dir_project=path_data)
-    generate_grapevine_mtgs_and_preprocessed_inputs(path_dir_project=path_data)
+    # generate_cordon_mtgs_and_preprocessed_inputs(path_dir_project=path_data)
+    # generate_grapevine_mtgs_and_preprocessed_inputs(path_dir_project=path_data)
     # %gui qt5
 
     for training_system in ('cordon', 'lyre', 'gdc', 'vsp'):
@@ -440,15 +439,15 @@ if __name__ == '__main__':
             is_show=False,
             path_output=path_data / f'output_ref/{training_system}/time_series.csv')
 
-    _plot_whole_plant_gas_exchange(
-        path_output_low=path_data / 'output_low/time_series.csv',
-        path_output_high=path_data / 'output_high/time_series.csv',
-        path_weather=path_data / 'weather.csv')
-
-    _plot_mtg_property(
-        path_output_low=path_data / 'output_low',
-        path_output_high=path_data / 'output_high')
-
-    _plot_water_use_efficiency(
-        path_output_low=path_data / 'output_low/time_series.csv',
-        path_output_high=path_data / 'output_high/time_series.csv')
+    # _plot_whole_plant_gas_exchange(
+    #     path_output_low=path_data / 'output_low/time_series.csv',
+    #     path_output_high=path_data / 'output_high/time_series.csv',
+    #     path_weather=path_data / 'weather.csv')
+    #
+    # _plot_mtg_property(
+    #     path_output_low=path_data / 'output_low',
+    #     path_output_high=path_data / 'output_high')
+    #
+    # _plot_water_use_efficiency(
+    #     path_output_low=path_data / 'output_low/time_series.csv',
+    #     path_output_high=path_data / 'output_high/time_series.csv')
