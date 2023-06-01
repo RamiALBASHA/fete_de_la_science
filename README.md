@@ -27,7 +27,7 @@ Go into the root directory of `app.py` (~/fete_de_la_science/models/) and run sh
 
 You must have the following information plotted into the terminal:
 
-    INFO:     Will watch for changes in these directories: ['C:\\Users\\albashar\\Documents\\dvp\\fete_de_la_science\\models']
+    INFO:     Will watch for changes in these directories: ['~\\fete_de_la_science\\models']
     INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
     INFO:     Started reloader process [21560] using StatReload
     INFO:     Started server process [17920]
