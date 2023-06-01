@@ -15,6 +15,7 @@ This project includes an Interactive User Interface to HydroShoot model (Albasha
     conda activate <MyEnv>
     conda install -c conda-forge shiny
     pip install shinywidgets
+    conda install -c openalea3 -c conda-forge oawidgets
 
 **Note:** I had to run the last command twice in order to make it install `shinywidgets`.
 
