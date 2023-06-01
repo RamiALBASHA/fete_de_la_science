@@ -1,4 +1,3 @@
-from datetime import datetime
 from json import dump
 from json import load as load_json
 from pathlib import Path
@@ -6,7 +5,7 @@ from pickle import load as load_pickle
 
 from hydroshoot import architecture, display, io, initialisation, model, exchange
 from k3d.plot import Plot
-from matplotlib import pyplot, patches
+from matplotlib import pyplot
 from matplotlib.dates import DateFormatter
 from oawidgets.plantgl import PlantGL
 from openalea.mtg import traversal, mtg
@@ -45,21 +44,6 @@ def build_grapevine_mtg(path_digit_file: Path, is_cordon_preferential_orientatio
         architecture.vine_transform(g, vid)
 
     return g
-
-
-def generate_cordon_mtgs_and_preprocessed_inputs(path_dir_project: Path):
-    path_output = path_dir_project / 'preprocessed_inputs'
-    for is_high_leaf_area in (False, True):
-        g = build_grapevine_mtg(
-            path_digit_file=path_dir_project / f'cordon_bilateral_{"high" if is_high_leaf_area else "low"}.csv')
-        virtual_scene = display.visu(g=g, def_elmnt_color_dict=True, scene=Scene(), view_result=True)
-        total_leaf_area = calc_total_leaf_area(g=g)
-        preprocess_inputs(
-            grapevine_mtg=g, path_project_dir=path_dir_project, psi_soil=-1, gdd_since_budbreak=1000.,
-            scene=virtual_scene, name_index=f'{total_leaf_area:.2f}')
-        architecture.save_mtg(
-            g=g, scene=virtual_scene, file_path=path_output, filename=f'mtg{total_leaf_area:.2f}.pckl')
-    pass
 
 
 def generate_grapevine_mtgs_and_preprocessed_inputs(path_dir_project: Path):
@@ -154,45 +138,6 @@ def run_hydroshoot(path_dir_preprocessed_inputs: Path, path_project: Path, path_
     return g, summary_output
 
 
-def _plot_whole_plant_gas_exchange(path_output_low: Path, path_output_high: Path, path_weather: Path) -> pyplot.Figure:
-    df_output_low = read_csv(path_output_low, sep=';', decimal='.', index_col='Unnamed: 0')
-    df_output_high = read_csv(path_output_high, sep=';', decimal='.', index_col='Unnamed: 0')
-    for df in (df_output_low, df_output_high):
-        df.index = to_datetime(df.index)
-
-    df_weather = read_csv(path_weather, sep=';', decimal='.', index_col='time')
-    df_weather.index = to_datetime(df_weather.index)
-    df_weather = df_weather.loc[df_output_low.index, :]
-
-    fig, axs = pyplot.subplots(nrows=2, ncols=2, sharex='all', figsize=(8, 4))
-
-    axs[0, 0].plot(df_output_low.index, df_weather['Rg'], label='Incident', c='k')
-    axs[0, 0].plot(df_output_low.index, df_output_low['Rg'], label='Absorbé (canopée clairsemée)', c='orange')
-    axs[0, 0].plot(df_output_high.index, df_output_high['Rg'], label='Absorbé (canopée dense)', c='red')
-    axs[0, 0].set(ylabel='Rayonnement solaire\n' + '($\mathregular{W\/m^{-2}_{sol}}$)')
-    axs[0, 0].legend(loc='center left', fontsize=8)
-
-    axs[1, 0].plot(df_output_low.index, df_weather['Tac'], label='air', c='k')
-    axs[1, 0].plot(df_output_low.index, df_output_low['Tleaf'], label='Canopée (clairsemée)', c='orange')
-    axs[1, 0].plot(df_output_high.index, df_output_high['Tleaf'], label='Canopée (dense)', c='red')
-    axs[1, 0].set(ylabel='Température\n(°C)', xlabel='heure')
-    axs[1, 0].legend(loc='lower right', fontsize=8)
-
-    axs[0, 1].plot(df_output_low.index, df_output_low['An'] * CONV_CO2, c='orange', label='(clairsemée)')
-    axs[0, 1].plot(df_output_high.index, df_output_high['An'] * CONV_CO2, c='red', label='dense')
-    axs[0, 1].set(ylabel='\n'.join(('Photosynthèse', r'($\mathregular{g\/plant^{-1}}$)')))
-    axs[0, 1].legend(loc='upper left', fontsize=8)
-
-    axs[1, 1].plot(df_output_low.index, df_output_low['E'], c='orange', label='(clairsemée)')
-    axs[1, 1].plot(df_output_high.index, df_output_high['E'], c='red', label='dense')
-    axs[1, 1].set(ylabel='\n'.join(('Transpiration', r'($\mathregular{g\/plant^{-1}}$)')), xlabel='heure')
-    axs[1, 1].legend(loc='upper left', fontsize=8)
-
-    axs[-1, -1].xaxis.set_major_formatter(DateFormatter('%H'))
-    fig.tight_layout()
-    return fig
-
-
 def plot_whole_plant_gas_exchange(path_ref: Path, path_user: Path, training_system_1: str, training_system_2: str,
                                   training_system_user: str, path_weather: Path) -> pyplot.Figure:
     path_output_1 = path_ref / training_system_1 / f'time_series.csv'
@@ -278,72 +223,6 @@ def plot_water_use_efficiency(path_ref: Path, path_user: Path, training_system_1
     return fig
 
 
-def _plot_water_use_efficiency(path_output_low: Path, path_output_high: Path) -> pyplot.Figure:
-    df_output_low = read_csv(path_output_low, sep=';', decimal='.', index_col='Unnamed: 0')
-    df_output_high = read_csv(path_output_high, sep=';', decimal='.', index_col='Unnamed: 0')
-
-    fig, ax = pyplot.subplots()
-    for s, df, c in (('clairsemé', df_output_low, 'orange'), ('dense', df_output_high, 'red')):
-        df.index = to_datetime(df.index)
-        ax.bar(s, df['An'].sum() * CONV_CO2 / df['E'].sum(), facecolor=c)
-    ax.set(ylabel='\n'.join(["Efficience de l'utilisation de l'eau", "$\mathregular{g_{CO_2}\/g^{-1}_{H_2O}}$"]))
-    fig.tight_layout()
-
-    return fig
-
-
-def _plot_mtg_property(path_output_low: Path, path_output_high: Path):
-    fig, axs = pyplot.subplots(nrows=4, ncols=1, sharex='all')
-    irradiance = {}
-    photosynthesis = {}
-    transpiration = {}
-    temperature = {}
-    nb_leaves = {}
-    for s, path_dir in (('low', path_output_low), ('high', path_output_high)):
-        pckl_files = [f for f in path_dir.iterdir() if f.name.endswith('.pckl')]
-        for pckl_file in pckl_files:
-            with open(pckl_file, mode='rb') as f:
-                g, _ = load_pickle(f)
-            date_sim = datetime.strptime(g.date, "%Y%m%d%H%M%S")
-            if date_sim not in irradiance:
-                irradiance[date_sim] = {}
-            irradiance[date_sim][s] = list(g.property('Rg').values())
-            if date_sim not in photosynthesis:
-                photosynthesis[date_sim] = {}
-            photosynthesis[date_sim][s] = [v * CONV_CO2 for v in g.property('FluxC').values()]
-            if date_sim not in transpiration:
-                transpiration[date_sim] = {}
-            transpiration[date_sim][s] = [v * 3600. for v in g.property('Flux').values()]
-            if date_sim not in temperature:
-                temperature[date_sim] = {}
-            temperature[date_sim][s] = list(g.property('Tlc').values())
-            nb_leaves.update({s: len(g.property('An'))})
-
-    bplots = {s: {'low': [], 'high': []} for s in ('irradiance', 'photosynthesis', 'transpiration', 'temperature')}
-    for ax, (var_name, var_value) in zip(axs, (('irradiance', irradiance), ('photosynthesis', photosynthesis),
-                                               ('transpiration', transpiration), ('temperature', temperature))):
-        for sim_datetime in var_value.keys():
-            for leaf_area in ('low', 'high'):
-                x_position = sim_datetime.hour + (-0.1 if leaf_area == 'low' else +0.1)
-                bplot = ax.boxplot(x=var_value[sim_datetime][leaf_area], patch_artist=True, vert=True,
-                                   positions=[x_position], widths=0.1, sym='')
-                bplot['boxes'][0].set_facecolor('orange' if leaf_area == 'low' else 'red')
-                bplot['boxes'][0].set_edgecolor('orange' if leaf_area == 'low' else 'red')
-                bplots[var_name][leaf_area].append(bplot)
-    axs[0].set(ylabel='\n'.join(('Rayonnement absorbé', '($\mathregular{W\/m^{-2}_{feuille}}$)')))
-    axs[1].set(ylabel='\n'.join(('Photosynthèse nette', r'($\mathregular{g\/{feuille}^{-1}}$)')))
-    axs[2].set(ylabel='\n'.join(('Transpiration', r'($\mathregular{g\/{feuille}^{-1}}$)')))
-    axs[3].set(ylabel='\n'.join(('Température', '(°C)')), xlabel='heure')
-
-    axs[0].text(0.025, 0.7, f'Nb feuilles:\n clairsemé: {nb_leaves["low"]}\n dense: {nb_leaves["high"]}',
-                transform=axs[0].transAxes)
-
-    handles_labels = [patches.Patch(facecolor='orange' if s == 'clairsemé' else 'red', label=s)
-                      for s in ('clairsemé', 'dense')]
-    axs[0].legend(handles=handles_labels)
-    pass
-
-
 def plot_mtg_property(path_ref: Path, training_system_1: str, training_system_2: str, path_user: Path,
                       training_system_user: str, hour: int, mtg_property: str) -> pyplot.Figure:
     path_ref_1 = path_ref / training_system_1 / f'mtg20120801{hour:02d}0000.pckl'
@@ -426,9 +305,10 @@ def show_3d_canopy(canopy_name: str, is_complete_canopy: bool = True) -> Plot:
 
 if __name__ == '__main__':
     path_data = Path(__file__).parent / 'data'
+    is_create_preprocessed_data = False
 
-    # generate_cordon_mtgs_and_preprocessed_inputs(path_dir_project=path_data)
-    # generate_grapevine_mtgs_and_preprocessed_inputs(path_dir_project=path_data)
+    if is_create_preprocessed_data:
+        generate_grapevine_mtgs_and_preprocessed_inputs(path_dir_project=path_data)
     # %gui qt5
 
     for training_system in ('cordon', 'lyre', 'gdc', 'vsp'):
@@ -438,16 +318,3 @@ if __name__ == '__main__':
             training_sys=training_system,
             is_show=False,
             path_output=path_data / f'output_ref/{training_system}/time_series.csv')
-
-    # _plot_whole_plant_gas_exchange(
-    #     path_output_low=path_data / 'output_low/time_series.csv',
-    #     path_output_high=path_data / 'output_high/time_series.csv',
-    #     path_weather=path_data / 'weather.csv')
-    #
-    # _plot_mtg_property(
-    #     path_output_low=path_data / 'output_low',
-    #     path_output_high=path_data / 'output_high')
-    #
-    # _plot_water_use_efficiency(
-    #     path_output_low=path_data / 'output_low/time_series.csv',
-    #     path_output_high=path_data / 'output_high/time_series.csv')
