@@ -11,7 +11,7 @@ This project includes an Interactive User Interface to HydroShoot model (Albasha
 
 ### Create and set the appropriate `conda` environment:
 
-    conda create -n <MyEnv> -c openalea3 -c conda-forge openalea.hydroshoot
+    conda create -n <MyEnv> -c openalea3 -c conda-forge openalea.hydroshoot=4.0.0
     conda activate <MyEnv>
     conda install -c conda-forge shiny
     pip install shinywidgets
