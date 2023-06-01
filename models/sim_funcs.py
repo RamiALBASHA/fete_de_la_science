@@ -4,7 +4,7 @@ from json import load as load_json
 from pathlib import Path
 from pickle import load as load_pickle
 
-from hydroshoot import architecture, display, io, initialisation, model, constants, exchange
+from hydroshoot import architecture, display, io, initialisation, model, exchange
 from k3d.plot import Plot
 from matplotlib import pyplot, patches
 from matplotlib.dates import DateFormatter
@@ -16,7 +16,7 @@ from pandas import read_csv, to_datetime
 
 pyplot.ioff()
 
-CONV_CO2 = constants.co2_molar_mass * 1.e-6 * 3600.  # umol/s to g/h
+CONV_CO2 = 44.01 * 1.e-6 * 3600.  # umol/s to g/h
 
 MAP_NAMES = dict(
     vsp='Espalier bas',
